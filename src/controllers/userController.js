@@ -13,10 +13,10 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
 const otpStorage = {};
 
 // **Register User**
-export const registerUser = async (req, res) => { console.log("test")
-  const { name, email, phone_no, password, role } = req.body;
+export const registerUser = async (req, res) => {
+  const { first_name, last_name, email, phone_no, password, role, preferences } = req.body;
 
-  if (!name || !email || !password || !role) {
+  if (!first_name || !last_name || !email || !password || !role) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -25,14 +25,17 @@ export const registerUser = async (req, res) => { console.log("test")
     if (existingUser.length) return res.status(400).json({ message: "Email already in use" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword)
-    await pool.query("INSERT INTO users (full_name, email, phone, password, role) VALUES (?, ?, ?, ?, ?)", [
-      name, email, phone_no, hashedPassword, role
+    const focusData = preferences.focus ? JSON.stringify(preferences.focus) : null;
+    const healthConcernsData = preferences.health_concerns ? JSON.stringify(preferences.health_concerns) : null;
+    const sessionTypeData = preferences.session_type ? JSON.stringify(preferences.session_type) : null;
+    //console.log(hashedPassword)
+    await pool.query("INSERT INTO users (first_name, last_name, email, phone, password, role, focus, health_concerns, session_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+      first_name, last_name, email, phone_no, hashedPassword, role, focusData, healthConcernsData, sessionTypeData
     ]);
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", "error": error });
+    res.status(500).json({ message: "Server error", "error": error.message });
   }
 };
 
@@ -50,7 +53,7 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
     console.log(user);
-    res.json({ token, user: { id: user.id, name: user.full_name, email: user.email, role: user.role } });
+    res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role } });
   } catch (error) {
     console.error(error); // Add error logging
     res.status(500).json({ message: "Server error", error: error.message });
