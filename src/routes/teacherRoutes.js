@@ -1,5 +1,5 @@
 import express from "express";
-import { createTeacherProfile, getTeacherProfile } from "../controllers/teacherController.js";
+import { createTeacherProfile, getTeacherProfile, getTeachersProfiles } from "../controllers/teacherController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { createClass, getAllClasses } from "../controllers/classController.js";
 import { setAvailability, getAvailability, removeAvailabilitySlot } from "../controllers/calenderController.js";
@@ -11,6 +11,8 @@ const router = express.Router();
 
 router.post("/profile", protect, createTeacherProfile);
 router.get("/profile/:id", protect, getTeacherProfile);
+//Get All teachers for 1:1 session
+router.get("/profile", protect, getTeachersProfiles);
 
 router.post("/classes", protect, createClass);
 router.get("/classes/:id", protect, getAllClasses);

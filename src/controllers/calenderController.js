@@ -1,18 +1,30 @@
 import db from "../config/db.js";
+import moment from 'moment';
 
 export const setAvailability = async (req, res) => {
-    const { user_id, day_of_week, start_time, end_time, is_recurring, session_duration } = req.body;
+    const { user_id, day_of_week, start_time, end_time, is_recurring, session_duration, session_date } = req.body;
 
     // Validate input
-    if (user_id == null || day_of_week == null || start_time == null || end_time == null) {
+    if (user_id == null || day_of_week == null || start_time == null || end_time == null || session_date == null) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
     try {
+        // Format session_date to YYYY-MM-DD format using moment.js
+        const formattedSessionDate = moment(session_date).format('YYYY-MM-DD');
+
         // Insert the availability record for the teacher
         const [result] = await db.execute(
-            "INSERT INTO teacher_availability (user_id, day_of_week, start_time, end_time, is_recurring, session_duration) VALUES (?, ?, ?, ?, ?, ?)",
-            [user_id, day_of_week, start_time, end_time, is_recurring ?? true, session_duration ?? 60]
+            "INSERT INTO teacher_availability (user_id, day_of_week, start_time, end_time, is_recurring, session_duration, session_date) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+                user_id, 
+                day_of_week, 
+                start_time, 
+                end_time, 
+                is_recurring ?? true, 
+                session_duration ?? 60, 
+                formattedSessionDate // Use the formatted date here
+            ]
         );
 
         // Fetch the newly inserted row by its auto-incremented ID

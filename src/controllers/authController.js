@@ -25,10 +25,10 @@ export const registerUser = async (req, res) => {
 
     await sendOTP(result.insertId, phone);
 
-    res.status(201).json({ message: "User registered. Verify OTP to activate account." });
+    return res.status(201).json({ message: "User registered. Verify OTP to activate account." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -45,10 +45,10 @@ export const loginUser = async (req, res) => {
       const payload = { user: { id: user[0].id, role: user[0].role_id } };
       const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
   
-      res.json({ token });
+      return res.json({ token });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
 };
 
@@ -59,10 +59,10 @@ export const resetPassword = async (req, res) => {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await pool.query("UPDATE users SET password = ? WHERE email = ?", [hashedPassword, email]);
   
-      res.json({ message: "Password updated successfully" });
+      return res.json({ message: "Password updated successfully" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Server error" });
+      return res.status(500).json({ message: "Server error" });
     }
 };
   

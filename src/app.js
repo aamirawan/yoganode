@@ -6,6 +6,8 @@ import passport from "./config/authConfig.js";
 import authRoutes from "./routes/authRoutes.js";
 import otpRoutes from "./routes/otpRoutes.js";
 import teacherRoutes from "./routes/teacherRoutes.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 dotenv.config();
 
@@ -18,5 +20,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/students", studentRoutes);
+app.use("/api/admin", adminRoutes);
 
 export default app;

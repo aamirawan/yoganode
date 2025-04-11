@@ -29,12 +29,84 @@ export const createClass = async (req, res) => {
     }
 };
 
+// Get teachers classes
 export const getAllClasses = async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await db.execute(`SELECT * FROM classes WHERE user_id = ?`, [id]);
         res.status(200).json(rows);
     } catch (error) {
+        res.status(500).json({ error: "Database error", details: error.message });
+    }
+};
+
+// Get available classes for students
+export const getAvailableClasses = async (req, res) => {
+    try {
+        const { date, teacherId, focusArea, sessionType } = req.query;
+
+        let query = 'SELECT * FROM classes LEFT JOIN users ON classes.user_id = users.id LEFT JOIN teachers ON teachers.user_id = users.id';
+        let params = [];
+
+        if (date) {
+            query += ' AND class_date = ?';
+            params.push(date);
+        }
+        if (teacherId) {
+            query += ' AND teacher_id = ?';
+            params.push(teacherId);
+        }
+        if (focusArea) {
+            query += ' AND focus = ?';
+            params.push(focusArea);
+        }
+        if (sessionType) {
+            query += ' AND session_type = ?';
+            params.push(sessionType);
+        }
+
+        const [classes] = await db.execute(query, params);
+
+        res.status(200).json({ success: true, data: classes });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
+
+export const getOneOnOneSessionClasses = async (req, res) => {
+    const { teacher_id } = req.query;
+    
+    // Check if both teacher_id and date are provided
+    if (!teacher_id) {
+        return res.status(400).json({ message: "teacher_id is required." });
+    }
+    
+    //console.log('Teacher ID:', teacher_id);
+    //console.log('Date:', date);
+
+    try {
+        // SQL query to fetch one-on-one session data with teacher_id and date filter
+        const query = `
+            SELECT *
+            FROM teacher_availability
+            LEFT JOIN users ON teacher_availability.user_id = users.id
+            LEFT JOIN teachers ON teachers.user_id = users.id
+            WHERE teachers.user_id = ?`;
+
+        // Execute the query using parameterized values to avoid SQL injection
+        const [rows] = await db.execute(query, [teacher_id]);
+
+        // Check if no rows were found
+        if (rows.length === 0) {
+            return res.status(200).json({ message: "No sessions found for this teacher" });
+        }
+
+        // Return the results as a JSON response
+        res.status(200).json(rows);
+    } catch (error) {
+        // Enhanced error handling for debugging
+        console.error('Database error:', error);
         res.status(500).json({ error: "Database error", details: error.message });
     }
 };

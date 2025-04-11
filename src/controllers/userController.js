@@ -26,16 +26,16 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const focusData = preferences.focus ? JSON.stringify(preferences.focus) : null;
-    const healthConcernsData = preferences.health_concerns ? JSON.stringify(preferences.health_concerns) : null;
-    const sessionTypeData = preferences.session_type ? JSON.stringify(preferences.session_type) : null;
+    const healthConcernsData = preferences.healthConcerns ? JSON.stringify(preferences.healthConcerns) : null;
+    const sessionTypeData = preferences.sessionType ? JSON.stringify(preferences.sessionType) : null;
     //console.log(hashedPassword)
     await pool.query("INSERT INTO users (first_name, last_name, email, phone, password, role, focus, health_concerns, session_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [
       first_name, last_name, email, phone_no, hashedPassword, role, focusData, healthConcernsData, sessionTypeData
     ]);
 
-    res.status(201).json({ message: "User registered successfully" });
+    return res.status(201).json({ success: true, message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", "error": error.message });
+    return res.status(500).json({ success: false, message: "Server error", "error": error.message });
   }
 };
 
@@ -53,10 +53,10 @@ export const loginUser = async (req, res) => {
 
     const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
     console.log(user);
-    res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role } });
+    return res.json({ token, user: { id: user.id, first_name: user.first_name, last_name: user.last_name, email: user.email, role: user.role, focus: user.focus, health_concerns: user.health_concerns } });
   } catch (error) {
     console.error(error); // Add error logging
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -66,10 +66,10 @@ export const getProfile = async (req, res) => {
     const [users] = await pool.query("SELECT id, full_name, email, role FROM users WHERE id = ?", [req.user.id]);
     if (!users.length) return res.status(404).json({ message: "User not found" });
 
-    res.json(users[0]);
+    return res.json(users[0]);
   } catch (error) {
     console.error(error); // Add error logging
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -83,8 +83,8 @@ export const sendOtpToUser = async (req, res) => {
   otpStorage[phone] = otp;
 
   const sent = await sendOTP(phone, otp);
-  if (sent) res.json({ message: "OTP sent successfully" });
-  else res.status(500).json({ message: "Failed to send OTP" });
+  if (sent) return res.json({ message: "OTP sent successfully" });
+  else return res.status(500).json({ message: "Failed to send OTP" });
 };
 
 // **Verify OTP**
@@ -93,8 +93,8 @@ export const verifyOtp = async (req, res) => {
 
   if (otpStorage[phone] && otpStorage[phone] === parseInt(otp)) {
     delete otpStorage[phone]; // Remove OTP after successful verification
-    res.json({ message: "OTP verified successfully" });
+    return res.json({ message: "OTP verified successfully" });
   } else {
-    res.status(400).json({ message: "Invalid OTP" });
+    return res.status(400).json({ message: "Invalid OTP" });
   }
 };

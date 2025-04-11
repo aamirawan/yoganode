@@ -1,5 +1,7 @@
 import app from "./app.js";
 import dotenv from "dotenv";
+import './jobs/classReminderJob.js';
+import './jobs/abandonedCartJob.js';
 
 dotenv.config();
 

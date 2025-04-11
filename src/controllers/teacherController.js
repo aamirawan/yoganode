@@ -83,3 +83,22 @@ export const getTeacherProfile = async (req, res) => {
         res.status(500).json({ error: "Database error", details: error.message });
     }
 };
+
+export const getTeachersProfiles = async (req, res) => {
+    try {
+        // Perform a JOIN query to fetch data from both 'teachers' and 'users' tables
+        const [rows] = await db.execute(
+            `SELECT teachers.*, users.* 
+            FROM users 
+            LEFT JOIN teachers ON teachers.user_id = users.id 
+            WHERE users.role = 'teacher'`
+        );
+
+        if (rows.length === 0) return res.status(404).json({ error: "Teacher not found" });
+
+        // If found, send back the teacher data along with the related user data
+        res.status(200).json(rows);
+    } catch (error) {
+        res.status(500).json({ error: "Database error", details: error.message });
+    }
+};

@@ -1,14 +1,38 @@
 import db from "../config/db.js";
+import notificationService from "../services/NotificationService.js";
 
 export const reportIssue = async (req, res) => {
     const { user_id, title, description, priority } = req.body;
 
     try {
-        // Assuming you're using mysql2 or a similar package
+        // Insert issue report
         const [result] = await db.execute(
             "INSERT INTO issue_reports (user_id, title, description, priority) VALUES (?, ?, ?, ?)",
             [user_id, title, description, priority]
         );
+
+        // Get user details for notification
+        const [userDetails] = await db.execute(
+            "SELECT * FROM users WHERE id = ?",
+            [user_id]
+        );
+
+        // Send issue confirmation notification
+        const user = {
+            id: user_id,
+            email: userDetails[0].email,
+            phone: userDetails[0].phone
+        };
+
+        const issueDetails = {
+            userName: `${userDetails[0].first_name} ${userDetails[0].last_name}`,
+            issueId: result.insertId,
+            title: title,
+            description: description,
+            priority: priority
+        };
+
+        await notificationService.sendIssueConfirmation(user, issueDetails);
 
         // Retrieve the inserted row by its ID
         const [newIssue] = await db.execute(
