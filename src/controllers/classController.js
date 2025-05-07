@@ -43,29 +43,21 @@ export const getAllClasses = async (req, res) => {
 // Get available classes for students
 export const getAvailableClasses = async (req, res) => {
     try {
-        const { date, teacherId, focusArea, sessionType } = req.query;
+        //const { date, teacherId, focusArea, sessionType } = req.query;
 
-        let query = 'SELECT * FROM classes LEFT JOIN users ON classes.user_id = users.id LEFT JOIN teachers ON teachers.user_id = users.id';
-        let params = [];
-
-        if (date) {
-            query += ' AND class_date = ?';
-            params.push(date);
-        }
-        if (teacherId) {
-            query += ' AND teacher_id = ?';
-            params.push(teacherId);
-        }
-        if (focusArea) {
-            query += ' AND focus = ?';
-            params.push(focusArea);
-        }
-        if (sessionType) {
-            query += ' AND session_type = ?';
-            params.push(sessionType);
-        }
-
-        const [classes] = await db.execute(query, params);
+        let query = `
+            SELECT 
+                classes.id AS class_id, 
+                users.id AS user_id, 
+                teachers.id AS teacher_id, 
+                classes.*, 
+                users.*, 
+                teachers.*
+            FROM classes
+            LEFT JOIN users ON classes.user_id = users.id
+            LEFT JOIN teachers ON teachers.user_id = users.id
+        `;
+        const [classes] = await db.execute(query);
 
         res.status(200).json({ success: true, data: classes });
     } catch (error) {

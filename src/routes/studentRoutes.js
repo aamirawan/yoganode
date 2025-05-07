@@ -3,6 +3,7 @@ import { getAvailableClasses, getOneOnOneSessionClasses } from '../controllers/c
 import { protect } from '../middleware/authMiddleware.js';
 import {getActivePackages, getPackageById, createSubscriptionOrder, getUserSubscriptions} from '../controllers/subscriptionController.js';
 import {createOrder, verifyPayment} from '../controllers/paymentController.js';
+import { bookGroupClass, getUserBookings, cancelUserBooking } from '../controllers/bookingController.js';
 
 const router = express.Router();
 
@@ -19,5 +20,10 @@ router.get('/my-orders', protect, getUserSubscriptions);
 // Payments
 router.post('/create/order', protect, createOrder);
 router.post('/payment/verify', protect, verifyPayment);
+
+// Bookings
+router.post('/bookings/group', protect, bookGroupClass);
+router.get('/bookings', protect, getUserBookings);
+router.delete('/bookings/:bookingId', protect, cancelUserBooking);
 
 export default router;

@@ -37,11 +37,24 @@ export const createOrder = async (req, res) => {
             },
         });
 
-        // 4. Save a pending order to DB
+        // 4. Check and clean up existing pending orders
+        const [existingPendingOrders] = await db.query(`
+            SELECT id, transactionId FROM Orders 
+            WHERE userId = ? AND subscriptionPackageId = ? AND paymentStatus = 'pending'
+            AND TIMESTAMPDIFF(HOUR, createdAt, NOW()) < 1
+        `, [userId, packageId]);
+
+        // Delete old pending orders
+        if (existingPendingOrders.length > 0) {
+            const oldOrderIds = existingPendingOrders.map(order => order.id);
+            await db.query(`DELETE FROM Orders WHERE id IN (?)`, [oldOrderIds]);
+        }
+
+        // Save new pending order
         await db.query(`
-        INSERT INTO Orders (userId, subscriptionPackageId, amount, transactionId, paymentStatus)
-        VALUES (?, ?, ?, ?, ?)
-      `, [userId, packageId, amount, razorpayOrder.id, 'pending']);
+            INSERT INTO Orders (userId, subscriptionPackageId, amount, transactionId, paymentStatus)
+            VALUES (?, ?, ?, ?, ?)
+        `, [userId, packageId, amount, razorpayOrder.id, 'pending']);
 
         // 5. Return payment URL (or details for frontend to use with Razorpay modal)
         return res.status(200).json({

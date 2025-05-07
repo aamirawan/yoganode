@@ -163,7 +163,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+        //await this.sendSMSNotification(user, notification);
     }
 
     async sendClassCancellationNotification(user, classDetails) {
@@ -177,7 +177,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+        //await this.sendSMSNotification(user, notification);
     }
 
     async sendClassReminder(user, classDetails) {
@@ -191,7 +191,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+        //await this.sendSMSNotification(user, notification);
     }
 
     async sendOrderConfirmation(user, orderDetails) {
@@ -205,7 +205,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+        //await this.sendSMSNotification(user, notification);
     }
 
     async sendAbandonedCartNotification(user, cartDetails) {
@@ -219,7 +219,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+    //await this.sendSMSNotification(user, notification);
     }
 
     async sendIssueConfirmation(user, issueDetails) {
@@ -233,7 +233,7 @@ class NotificationService {
         // Send through all channels
         await this.sendEmailNotification(user, notification);
         await this.sendWhatsAppNotification(user, notification);
-        await this.sendSMSNotification(user, notification);
+        //await this.sendSMSNotification(user, notification);
     }
 }
 
