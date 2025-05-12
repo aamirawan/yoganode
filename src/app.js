@@ -8,6 +8,8 @@ import otpRoutes from "./routes/otpRoutes.js";
 import teacherRoutes from "./routes/teacherRoutes.js";
 import studentRoutes from "./routes/studentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import enhancedClassRoutes from "./routes/enhancedClassRoutes.js";
+import classExceptionRoutes from "./routes/classExceptionRoutes.js";
 
 dotenv.config();
 
@@ -22,5 +24,10 @@ app.use("/api/otp", otpRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/classes", enhancedClassRoutes);
+// Fix the class exception routes registration - use the correct path
+// The routes in classExceptionRoutes.js include /classes/:class_id/exceptions
+// So we need to register them with /api as the base path
+app.use("/api", classExceptionRoutes);
 
 export default app;

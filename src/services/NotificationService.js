@@ -181,17 +181,73 @@ class NotificationService {
     }
 
     async sendClassReminder(user, classDetails) {
+        // Format the time for display
+        const formatTimeForDisplay = (timeStr) => {
+            // Parse the time string (HH:MM)
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            
+            // Create a date object and set the time
+            const date = new Date();
+            date.setHours(hours, minutes, 0, 0);
+            
+            // Format the time
+            return date.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+        };
+
+        // Format the date for display
+        const formatDateForDisplay = (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        };
+
+        // Create appropriate message based on user type and reminder settings
+        let title, message;
+        
+        if (classDetails.isInstructor) {
+            title = `Instructor Reminder: ${classDetails.title}`;
+            message = `You'll be teaching "${classDetails.title}" in ${classDetails.reminderMinutesBefore} minutes at ${formatTimeForDisplay(classDetails.startTime)} on ${formatDateForDisplay(classDetails.startDate)}.`;
+        } else {
+            title = `Class Reminder: ${classDetails.title}`;
+            message = `Your yoga class "${classDetails.title}" with ${classDetails.instructorName} starts in ${classDetails.reminderMinutesBefore} minutes at ${formatTimeForDisplay(classDetails.startTime)} on ${formatDateForDisplay(classDetails.startDate)}.`;
+        }
+
         const notification = {
             type: 'class_reminder',
-            title: 'Upcoming Class Reminder',
-            message: `Reminder: Your class "${classDetails.title}" is scheduled for ${classDetails.startTime}`,
-            data: classDetails
+            title: title,
+            message: message,
+            data: {
+                ...classDetails,
+                formattedTime: formatTimeForDisplay(classDetails.startTime),
+                formattedDate: formatDateForDisplay(classDetails.startDate)
+            }
         };
 
         // Send through all channels
         await this.sendEmailNotification(user, notification);
-        await this.sendWhatsAppNotification(user, notification);
-        //await this.sendSMSNotification(user, notification);
+        
+        // Send WhatsApp notification if user has a phone number
+        if (user.phone) {
+            await this.sendWhatsAppNotification(user, notification);
+        }
+        
+        // Uncomment to enable SMS notifications
+        // if (user.phone) {
+        //     await this.sendSMSNotification(user, notification);
+        // }
+        
+        // Log the reminder
+        console.log(`Sent ${classDetails.reminderMinutesBefore}-minute reminder to ${user.id} for class ${classDetails.id}`);
+        
+        return true;
     }
 
     async sendOrderConfirmation(user, orderDetails) {
