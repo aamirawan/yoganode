@@ -1,4 +1,5 @@
 import { updateClassesTable } from './001_update_classes_table.js';
+import { updateSubscriptionPackagesTable } from './004_update_subscription_packages.js';
 
 /**
  * Run all migrations in sequence
@@ -9,7 +10,8 @@ const runAllMigrations = async () => {
     
     // Run migrations in order
     const migrations = [
-      { name: 'Update Classes Table', fn: updateClassesTable }
+      { name: 'Update Classes Table', fn: updateClassesTable },
+      { name: 'Update Subscription Packages Table', fn: updateSubscriptionPackagesTable }
     ];
     
     for (const migration of migrations) {

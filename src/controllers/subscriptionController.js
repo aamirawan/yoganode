@@ -5,7 +5,7 @@ import notificationService from '../services/NotificationService.js';
 export const getActivePackages = async (req, res) => {
   try {
     const [packages] = await db.execute(`
-      SELECT id, name, description, durationDays, price, freeTrialClasses, groupClasses, oneOnOneSessions, features
+      SELECT id, name, description, durationDays, price, freeTrialClasses, groupClasses, oneOnOneSessions, features, type
       FROM SubscriptionPackages
       WHERE isActive = 1
     `);
