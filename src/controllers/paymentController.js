@@ -4,6 +4,7 @@ import crypto from 'crypto';
 
 export const createOrder = async (req, res) => {
     try {
+        console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
         const userId = req.user.id;
         console.log("userId", userId);
         const { packageId, couponCode } = req.body;
@@ -56,6 +57,15 @@ export const createOrder = async (req, res) => {
             VALUES (?, ?, ?, ?, ?)
         `, [userId, packageId, amount, razorpayOrder.id, 'pending']);
 
+        // Debug log to check if key is available
+        console.log('Razorpay Key ID:', process.env.RAZORPAY_KEY_ID);
+        
+        // Make sure we have a key
+        if (!process.env.RAZORPAY_KEY_ID) {
+            console.error('RAZORPAY_KEY_ID is not set in environment variables');
+            return res.status(500).json({ message: 'Payment gateway configuration error' });
+        }
+        
         // 5. Return payment URL (or details for frontend to use with Razorpay modal)
         return res.status(200).json({
             orderId: razorpayOrder.id,

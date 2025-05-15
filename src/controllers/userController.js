@@ -87,14 +87,52 @@ export const sendOtpToUser = async (req, res) => {
   else return res.status(500).json({ message: "Failed to send OTP" });
 };
 
-// **Verify OTP**
+// **Verify OTP and Login/Register User**
 export const verifyOtp = async (req, res) => {
   const { phone, otp } = req.body;
 
-  if (otpStorage[phone] && otpStorage[phone] === parseInt(otp)) {
-    delete otpStorage[phone]; // Remove OTP after successful verification
-    return res.json({ message: "OTP verified successfully" });
-  } else {
+  if (!otpStorage[phone] || otpStorage[phone] !== parseInt(otp)) {
     return res.status(400).json({ message: "Invalid OTP" });
+  }
+
+  // OTP is valid, remove it from storage
+  delete otpStorage[phone];
+
+  try {
+    // Check if user with this phone number exists
+    const [existingUsers] = await pool.query("SELECT * FROM users WHERE phone = ?", [phone]);
+    
+    if (existingUsers.length > 0) {
+      // User exists - Login flow
+      const user = existingUsers[0];
+      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
+      
+      return res.json({ 
+        token, 
+        user: { 
+          id: user.id, 
+          first_name: user.first_name, 
+          last_name: user.last_name, 
+          email: user.email, 
+          role: user.role, 
+          focus: user.focus, 
+          health_concerns: user.health_concerns, 
+          phone_no: user.phone 
+        },
+        isNewUser: false,
+        message: "Login successful"
+      });
+    } else {
+      // User doesn't exist - Return status for registration flow
+      // Frontend will collect additional details and call registerUser endpoint
+      return res.json({ 
+        isNewUser: true, 
+        phone: phone,
+        message: "Phone verified. Please complete registration."
+      });
+    }
+  } catch (error) {
+    console.error("Error during OTP verification:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
