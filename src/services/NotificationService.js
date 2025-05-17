@@ -108,14 +108,18 @@ class NotificationService {
             const formattedPhone = user.phone.replace(/\D/g, '');
             
             await axios.post(
-                `${this.watiApiUrl}/api/v1/sendTemplateMessage`,
+                `${this.watiApiUrl}/api/v1/sendTemplateMessage?whatsappNumber=${formattedPhone}`,
                 {
                     template_name: notification.type === 'class_reminder' ? 'class_reminder_whatsapp' : 'default_whatsapp',
                     broadcast_name: notification.title,
                     parameters: [
                         {
-                            name: "message",
-                            value: notification.message
+                            name: "time",
+                            value: notification.data.startTime
+                        },
+                        {
+                            name: "meeting_links",
+                            value: notification.data.meetingLinks
                         }
                     ],
                     phone_numbers: [formattedPhone]

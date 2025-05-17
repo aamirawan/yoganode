@@ -80,11 +80,18 @@ export const getOneOnOneSessionClasses = async (req, res) => {
     try {
         // SQL query to fetch one-on-one session data with teacher_id and date filter
         const query = `
-            SELECT *
+            SELECT 
+                teacher_availability.id AS class_id,
+                users.id AS user_id,
+                teachers.user_id AS teacher_id,
+                teacher_availability.*,
+                users.*,
+                teachers.*
             FROM teacher_availability
             LEFT JOIN users ON teacher_availability.user_id = users.id
             LEFT JOIN teachers ON teachers.user_id = users.id
             WHERE teachers.user_id = ?`;
+
 
         // Execute the query using parameterized values to avoid SQL injection
         const [rows] = await db.execute(query, [teacher_id]);

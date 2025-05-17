@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/profile", protect, createTeacherProfile);
 router.get("/profile/:id", protect, getTeacherProfile);
 //Get All teachers for 1:1 session
-router.get("/profile", protect, getTeachersProfiles);
+router.get("/profile", getTeachersProfiles);
 
 router.post("/classes", protect, createClass);
 router.get("/classes/:id", protect, getAllClasses);

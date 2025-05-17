@@ -3,13 +3,13 @@ import { getAvailableClasses, getOneOnOneSessionClasses } from '../controllers/c
 import { protect } from '../middleware/authMiddleware.js';
 import {getActivePackages, getPackageById, createSubscriptionOrder, getUserSubscriptions} from '../controllers/subscriptionController.js';
 import {createOrder, verifyPayment} from '../controllers/paymentController.js';
-import { bookGroupClass, getUserBookings, cancelUserBooking } from '../controllers/bookingController.js';
+import { bookGroupClass, getUserBookings, cancelUserBooking, bookOneOnOneSession } from '../controllers/bookingController.js';
 
 const router = express.Router();
 
 // Route: /api/classes (with optional filters)
-router.post('/get/classes', protect, getAvailableClasses);
-router.get('/get/one/on/one/sessions', protect, getOneOnOneSessionClasses)
+router.post('/get/classes', getAvailableClasses);
+router.get('/get/one/on/one/sessions', getOneOnOneSessionClasses)
 
 // Subscriptions
 router.get('/packages', protect, getActivePackages);
@@ -23,6 +23,7 @@ router.post('/payment/verify', protect, verifyPayment);
 
 // Bookings
 router.post('/bookings/group', protect, bookGroupClass);
+router.post('/bookings/one-on-one', protect, bookOneOnOneSession);
 router.get('/bookings', protect, getUserBookings);
 router.delete('/bookings/:bookingId', protect, cancelUserBooking);
 

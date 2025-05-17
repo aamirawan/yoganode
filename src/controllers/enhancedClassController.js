@@ -21,7 +21,8 @@ export const createClass = async (req, res) => {
     recurring_interval,
     recurring_end_date,
     reminder_enabled,
-    reminder_minutes_before
+    reminder_minutes_before,
+    meeting_link
   } = req.body;
 
   // Validate required fields
@@ -61,8 +62,9 @@ export const createClass = async (req, res) => {
         recurring_interval,
         recurring_end_date,
         reminder_enabled,
-        reminder_minutes_before
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reminder_minutes_before,
+        meeting_link
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         user_id, 
         title, 
@@ -71,15 +73,16 @@ export const createClass = async (req, res) => {
         participants, 
         classDuration, 
         classLevel,
-        start_date,
+        formatDate(new Date(start_date)),
         start_time,
         isRecurring,
         recurrenceType,
         JSON.stringify(recurring_days || []),
         recurringInterval,
-        recurring_end_date || null,
+        recurring_end_date ? formatDate(new Date(recurring_end_date)) : null,
         reminderEnabled,
-        reminderMinutesBefore
+        reminderMinutesBefore,
+        meeting_link || ''
       ]
     );
 
@@ -229,7 +232,8 @@ export const updateClass = async (req, res) => {
     reminder_enabled,
     reminder_minutes_before,
     is_active,
-    update_type
+    update_type,
+    meeting_link
   } = req.body;
 
   try {
@@ -337,7 +341,7 @@ export const updateClass = async (req, res) => {
           max_participants, 
           duration, 
           level,
-          start_date,
+          formatDate(new Date(start_date)),
           start_time,
           is_recurring,
           recurrence_type,
@@ -361,7 +365,7 @@ export const updateClass = async (req, res) => {
           recurrence_type || existingClass.recurrence_type,
           JSON.stringify(recurring_days || JSON.parse(existingClass.recurring_days || '[]')),
           recurring_interval || existingClass.recurring_interval,
-          recurring_end_date || existingClass.recurring_end_date,
+          recurring_end_date ? formatDate(new Date(recurring_end_date)) : existingClass.recurring_end_date,
           reminder_enabled !== undefined ? reminder_enabled : existingClass.reminder_enabled,
           reminder_minutes_before || existingClass.reminder_minutes_before
         ]
@@ -397,7 +401,8 @@ export const updateClass = async (req, res) => {
           recurring_end_date = ?,
           reminder_enabled = ?,
           reminder_minutes_before = ?,
-          is_active = ?
+          is_active = ?,
+          meeting_link = ?
         WHERE id = ?`,
         [
           title || existingClass.title,
@@ -406,16 +411,17 @@ export const updateClass = async (req, res) => {
           max_participants || existingClass.max_participants,
           duration || existingClass.duration,
           level || existingClass.level,
-          start_date || existingClass.start_date,
+          start_date ? formatDate(new Date(start_date)) : existingClass.start_date,
           start_time || existingClass.start_time,
           is_recurring !== undefined ? is_recurring : existingClass.is_recurring,
           recurrence_type || existingClass.recurrence_type,
           recurring_days ? JSON.stringify(recurring_days) : existingClass.recurring_days,
           recurring_interval || existingClass.recurring_interval,
-          recurring_end_date || existingClass.recurring_end_date,
+          recurring_end_date ? formatDate(new Date(recurring_end_date)) : existingClass.recurring_end_date,
           reminder_enabled !== undefined ? reminder_enabled : existingClass.reminder_enabled,
           reminder_minutes_before || existingClass.reminder_minutes_before,
           is_active !== undefined ? is_active : existingClass.is_active,
+          meeting_link !== undefined ? meeting_link : existingClass.meeting_link,
           class_id
         ]
       );

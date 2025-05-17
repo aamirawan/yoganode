@@ -1,5 +1,8 @@
 import { updateClassesTable } from './001_update_classes_table.js';
+import { addIsActiveToClasses } from './002_add_is_active_to_classes.js';
+import { createClassExceptionsTable } from './003_create_class_exceptions_table.js';
 import { updateSubscriptionPackagesTable } from './004_update_subscription_packages.js';
+import { addMeetingLinkToClasses } from './005_add_meeting_link_to_classes.js';
 
 /**
  * Run all migrations in sequence
@@ -11,7 +14,10 @@ const runAllMigrations = async () => {
     // Run migrations in order
     const migrations = [
       { name: 'Update Classes Table', fn: updateClassesTable },
-      { name: 'Update Subscription Packages Table', fn: updateSubscriptionPackagesTable }
+      { name: 'Add Is Active to Classes', fn: addIsActiveToClasses },
+      { name: 'Create Class Exceptions Table', fn: createClassExceptionsTable },
+      { name: 'Update Subscription Packages Table', fn: updateSubscriptionPackagesTable },
+      { name: 'Add Meeting Link to Classes', fn: addMeetingLinkToClasses }
     ];
     
     for (const migration of migrations) {
